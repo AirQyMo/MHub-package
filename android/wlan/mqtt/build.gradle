@@ -1,0 +1,18 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+dependencies {
+    / Modules /
+    implementation project(':core')
+    / Android /
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+    / JSON /
+    implementation "com.google.code.gson:gson:$gson"
+    / MQTT /
+    implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:$mqtt"
+    implementation "com.github.hannesa2:paho.mqtt.android:$mqttService"
+}
+
+android {
+    namespace 'br.pucrio.inf.lac.mqtt'
+}

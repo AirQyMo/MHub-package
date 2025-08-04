@@ -1,0 +1,27 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+
+dependencies {
+    / Android /
+    implementation "androidx.core:core-ktx:$ktx"
+    / Json /
+    implementation "com.google.code.gson:gson:$gson"
+    / Injection /
+    implementation "com.google.dagger:dagger:$dagger"
+    compileOnly "com.squareup.inject:assisted-inject-annotations-dagger2:$assisted"
+    kapt "com.google.dagger:dagger-compiler:$dagger"
+    kapt "com.squareup.inject:assisted-inject-processor-dagger2:$assisted"
+    / Rx /
+    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroid"
+    / Background /
+    implementation 'androidx.work:work-runtime-ktx:2.8.1'
+    / Database /
+    implementation "androidx.room:room-runtime:$room"
+    implementation "androidx.room:room-rxjava2:$room"
+    kapt "androidx.room:room-compiler:$room"
+}
+
+android {
+    namespace 'br.pucrio.inf.lac.mobilehub.core'
+}

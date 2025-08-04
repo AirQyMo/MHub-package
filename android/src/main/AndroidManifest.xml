@@ -1,0 +1,5 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="mobile_hub_plugin">
+    <!-- This is a library module manifest. No <application> tag is needed here.
+         Permissions and other app-level configurations are defined in the example app's AndroidManifest.xml. -->
+</manifest>

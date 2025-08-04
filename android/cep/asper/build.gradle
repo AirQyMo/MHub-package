@@ -1,0 +1,14 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+
+dependencies {
+    / Modules /
+    implementation project(':core')
+    / Asper /
+    implementation files('libs/asper-4.9.0.jar')
+}
+
+android {
+    namespace 'br.pucrio.inf.lac.asper'
+}

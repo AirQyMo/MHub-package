@@ -1,0 +1,13 @@
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+}
+
+dependencies {
+    / Modules /
+    implementation project(':core')
+}
+
+android {
+    namespace 'br.pucrio.inf.lac.cdp.android'
+}

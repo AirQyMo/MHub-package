@@ -1,0 +1,62 @@
+apply plugin: 'com.android.library'
+
+apply plugin: 'kotlin-android'
+
+buildscript {
+    apply from: 'versions.gradle' // This script provides $kotlinVersion, androidConfig.targetSdk, androidConfig.minSdk
+
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.4.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
+
+android {
+    compileSdkVersion androidConfig.targetSdk
+    
+    defaultConfig {
+        minSdkVersion androidConfig.minSdk
+        targetSdkVersion androidConfig.targetSdk
+
+        namespace "mobile_hub_plugin" // This should match the package in pubspec.yaml and MobileHubPlugin.kt
+    }
+    
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8" // Or javaVersion.toString() if defined in versions.gradle
+    }
+}
+
+dependencies {
+    // Internal modules that MobileHubPlugin.kt depends on
+    implementation project(':core')        // For MobileHub, MobileObject, SensorData, Moid, RxBus, exceptions etc.
+    implementation project(':wpan-ble')    // For BleWPAN, MobileObjectMapper
+    implementation project(':wlan-mqtt')
+    implementation project(':wlan-mrudp')
+    implementation project(':cdp-android')
+    implementation project(':cep-asper')
+
+    // External libraries used in MobileHubPlugin.kt
+    // Assuming these versions are defined in your versions.gradle
+    implementation "io.reactivex.rxjava2:rxjava:$rxJava"
+    implementation "io.reactivex.rxjava2:rxkotlin:$rxKotlin"
+    implementation "com.jakewharton.timber:timber:$timber"
+
+    // General Kotlin standard library (often good to include explicitly)
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
+}
