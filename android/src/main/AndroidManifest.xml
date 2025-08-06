@@ -1,5 +1,26 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="mobile_hub_plugin">
-    <!-- This is a library module manifest. No <application> tag is needed here.
-         Permissions and other app-level configurations are defined in the example app's AndroidManifest.xml. -->
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+    
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+
+    <application>
+        <service android:name="br.pucrio.inf.lac.mobilehub.core.MobileHubService"
+            android:enabled="true"
+            android:exported="false"/>
+        <service android:name="org.eclipse.paho.android.service.MqttService"/>
+        <receiver android:name="br.pucrio.inf.lac.mobilehub.core.MobileHubServiceStopReceiver" />
+        
+        </application>
 </manifest>

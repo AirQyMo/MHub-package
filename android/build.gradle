@@ -1,10 +1,11 @@
-apply plugin: 'com.android.library'
+// mobile_hub_plugin/android/build.gradle
 
+apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 buildscript {
-    apply from: 'versions.gradle' // This script provides $kotlinVersion, androidConfig.targetSdk, androidConfig.minSdk
-
+    apply from: 'versions.gradle'
     repositories {
         google()
         mavenCentral()
@@ -15,48 +16,54 @@ buildscript {
     }
 }
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        maven { url 'https://jitpack.io' }
-    }
+
+repositories {
+    google()
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 android {
-    compileSdkVersion androidConfig.targetSdk
-    
+    compileSdkVersion 33
     defaultConfig {
-        minSdkVersion androidConfig.minSdk
-        targetSdkVersion androidConfig.targetSdk
-
-        namespace "mobile_hub_plugin" // This should match the package in pubspec.yaml and MobileHubPlugin.kt
+        minSdkVersion 23
+        targetSdkVersion 33
+        namespace "mobile_hub_plugin"
     }
-    
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = "1.8" // Or javaVersion.toString() if defined in versions.gradle
+        jvmTarget = "1.8"
+    }
+    repositories {
+        maven { url 'https://jitpack.io' }
     }
 }
 
 dependencies {
-    // Internal modules that MobileHubPlugin.kt depends on
-    implementation project(':core')        // For MobileHub, MobileObject, SensorData, Moid, RxBus, exceptions etc.
-    implementation project(':wpan-ble')    // For BleWPAN, MobileObjectMapper
-    implementation project(':wlan-mqtt')
-    implementation project(':wlan-mrudp')
-    implementation project(':cdp-android')
-    implementation project(':cep-asper')
-
-    // External libraries used in MobileHubPlugin.kt
-    // Assuming these versions are defined in your versions.gradle
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
+    implementation "androidx.core:core-ktx:1.13.1"
+    implementation "androidx.work:work-runtime-ktx:2.8.1"
     implementation "io.reactivex.rxjava2:rxjava:$rxJava"
     implementation "io.reactivex.rxjava2:rxkotlin:$rxKotlin"
     implementation "com.jakewharton.timber:timber:$timber"
-
-    // General Kotlin standard library (often good to include explicitly)
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
+    implementation "com.polidea.rxandroidble2:rxandroidble:$rxble"
+    implementation "com.google.code.gson:gson:$gson"
+    implementation "com.google.dagger:dagger:$dagger"
+    implementation "org.luaj:luaj-jse:3.0.1"
+    implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:$mqtt"
+    implementation "com.github.hannesa2:paho.mqtt.android:$mqttService"
+    implementation files('libs/ClientLib.jar')
+    implementation files('libs/asper-4.9.0.jar')
+    kapt "com.google.dagger:dagger-compiler:$dagger"
+    testImplementation "junit:junit:$junit"
 }
+
+// REMOVE THE task clean BLOCK
+/*
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+*/
