@@ -1,4 +1,4 @@
-package mobile_hub_plugin // This package name should match the 'package' attribute in AndroidManifest.xml
+package com.mhub.mobile.mobile_hub_plugin
 
 import android.content.Context
 import br.pucrio.inf.lac.ble.BleWPAN
@@ -17,6 +17,18 @@ import io.flutter.plugin.common.MethodChannel
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import timber.log.Timber
+
+// Core MQTT classes
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions
+import org.eclipse.paho.client.mqttv3.MqttMessage
+import org.eclipse.paho.client.mqttv3.MqttException
+import org.eclipse.paho.client.mqttv3.MqttToken
+import org.eclipse.paho.client.mqttv3.IMqttActionListener
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
+
+// Android Service and Callback classes
+import org.eclipse.paho.android.service.MqttAndroidClient
+import org.eclipse.paho.client.mqttv3.MqttCallbackExtended
 
 /** MobileHubPlugin */
 class MobileHubPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, EventChannel.StreamHandler {
