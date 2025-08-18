@@ -1,0 +1,113 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'kotlin-parcelize'
+}
+
+ext {
+    versionMajor = 1
+    versionMinor = 0
+    versionPatch = 0
+    versionBuild = 0
+}
+
+android {
+    compileSdkVersion androidConfig.targetSdk
+
+    defaultConfig {
+        applicationId "br.pucrio.inf.lac.mobilehub.sample"
+        minSdkVersion androidConfig.minSdk
+        targetSdkVersion androidConfig.targetSdk
+        multiDexEnabled true
+        versionCode generateVersionCode()
+        versionName generateVersionName()
+        buildConfigField "boolean", "ENABLE_MEMORY_DB", "true"
+        buildConfigField "String",  "TEST_URL", "\"http://localhost:8080\""
+        buildConfigField "String",  "BASE_URL", "\"http://www.mocky.io\""
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility javaVersion
+        targetCompatibility javaVersion
+    }
+
+    kotlinOptions {
+        jvmTarget = javaVersion.toString()
+    }
+
+    buildFeatures {
+        viewBinding true
+        compose true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.4.3'
+    }
+    namespace 'br.pucrio.inf.lac.mobilehub'
+}
+
+private Integer generateVersionCode() {
+    return ext.versionMajor * 10000 + ext.versionMinor * 1000 + ext.versionPatch * 100 + ext.versionBuild
+}
+
+private String generateVersionName() {
+    return "${ext.versionMajor}.${ext.versionMinor}.${ext.versionPatch}"
+}
+
+dependencies {
+    // The single, unified MobileHub library
+    implementation project(':mobilehub_library')
+    / Multidex /
+    implementation "androidx.multidex:multidex:$multidex"
+    / Android /
+    implementation "androidx.core:core-ktx:$ktx"
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
+    / Google /
+    implementation 'com.google.android.material:material:1.9.0'
+    implementation "androidx.compose.material:material:$compose"
+    / Injection /
+    implementation "com.google.dagger:dagger:$dagger"
+    kapt "com.google.dagger:dagger-compiler:$dagger"
+    / Compose /
+    implementation "androidx.compose.animation:animation:$compose"
+    implementation "com.google.accompanist:accompanist-insets:0.14.0"
+    implementation "androidx.compose.ui:ui:$compose"
+    implementation "androidx.compose.ui:ui-tooling:$compose"
+    implementation "androidx.compose.foundation:foundation:$compose"
+    implementation "androidx.compose.foundation:foundation-layout:$compose"
+    implementation "androidx.compose.runtime:runtime:$compose"
+    implementation "androidx.compose.ui:ui-util:$compose"
+    implementation "androidx.compose.ui:ui-viewbinding:$compose"
+    implementation "androidx.activity:activity-compose:1.7.1"
+    implementation "androidx.compose.material:material-icons-core:$compose"
+    implementation "androidx.compose.material:material-icons-extended:$compose"
+    / Navigation /
+    implementation "androidx.navigation:navigation-runtime-ktx:$navigation"
+    implementation "androidx.navigation:navigation-ui-ktx:$navigation"
+    implementation "androidx.navigation:navigation-compose:$navigation"
+    / Data Store /
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
+    implementation "androidx.datastore:datastore-preferences-rxjava2:1.0.0"
+    implementation 'androidx.datastore:datastore-core:1.0.0'
+    / UI Tests /
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.4.3'
+
+    // --- Common test dependencies ---
+    testImplementation "junit:junit:$junit"
+    testImplementation 'org.robolectric:robolectric:4.4'
+    testImplementation "org.mockito:mockito-core:$mockito"
+    testImplementation "org.mockito:mockito-inline:$mockito"
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:$mockitoKotlin"
+    testImplementation "io.mockk:mockk:$mockk"
+    testImplementation 'androidx.test:core:1.5.0'
+}

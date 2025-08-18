@@ -1,0 +1,30 @@
+<resources>
+
+    <string name="app_name">Mobile Hub</string>
+
+    <!-- Common -->
+    <string name="text_loading">Loading…</string>
+    <string name="action_yes">Yes</string>
+    <string name="action_cancel">Cancel</string>
+
+    <!-- Main -->
+    <string name="action_home">Home</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_context_data">Context Data</string>
+    <string name="text_main_navigation_back_hint">Back</string>
+
+    <!-- Home -->
+    <string name="text_home_navigation_title">Mobile Hub</string>
+    <string name="text_home_title">Devices (%1$d)</string>
+
+    <!-- Settings -->
+    <string name="text_settings_network">Network</string>
+    <string name="text_settings_technology">Technology</string>
+    <string name="text_settings_technology_mqtt">MQTT</string>
+    <string name="text_settings_technology_mrudp">MR-UDP</string>
+    <string name="text_settings_ip_address">IP address</string>
+    <string name="text_settings_ip_address_placeholder">0.0.0.0</string>
+    <string name="text_settings_port">Port</string>
+    <string name="text_settings_port_placeholder">80</string>
+
+</resources>
