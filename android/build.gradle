@@ -1,0 +1,119 @@
+apply from: 'versions.gradle'
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+
+kotlin {
+    jvmToolchain{
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
+android {
+    // A new, unified namespace for the entire library
+    namespace 'br.pucrio.inf.lac'
+    compileSdkVersion androidConfig.targetSdk
+
+    defaultConfig {
+        minSdkVersion androidConfig.minSdk
+        targetSdkVersion androidConfig.targetSdk
+        multiDexEnabled true
+        testInstrumentationRunner "cucumber.api.android.CucumberAndroidJUnitRunner"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.incremental": "true"]
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug{
+            
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility javaVersion
+        targetCompatibility javaVersion
+    }
+
+    kotlinOptions {
+        jvmTarget = javaVersion.toString()
+        freeCompilerArgs += [
+                "-opt-in=kotlin.contracts.ExperimentalContracts", // Use -opt-in, not -Xopt-in
+                // JVM arguments for Kapt with newer JDKs
+                "-Xjvm-default=all", // Recommended for compatibility
+        ]
+    }
+
+    testOptions {
+        animationsDisabled = true
+        unitTests {
+            returnDefaultValues = true
+            includeAndroidResources = true
+        }
+    }
+}
+
+kapt {
+    javacOptions {
+        option("--add-opens", "jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED")
+        option("--add-opens", "jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED")
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    // --- Dependencies from :core module ---
+    implementation "androidx.core:core-ktx:$ktx"
+    implementation "com.google.code.gson:gson:$gson"
+    implementation "com.google.dagger:dagger:$dagger"
+    compileOnly "com.squareup.inject:assisted-inject-annotations-dagger2:$assisted"
+    kapt "com.google.dagger:dagger-compiler:$dagger"
+    kapt "com.squareup.inject:assisted-inject-processor-dagger2:$assisted"
+    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroid"
+    implementation 'androidx.work:work-runtime-ktx:2.8.1'
+    implementation "androidx.room:room-runtime:$room"
+    implementation "androidx.room:room-rxjava2:$room"
+    kapt "androidx.room:room-compiler:$room"
+
+    // --- Dependencies from :wpan-ble module ---
+    implementation "com.polidea.rxandroidble2:rxandroidble:$rxble"
+    implementation 'org.luaj:luaj-jse:3.0.1'
+
+    // --- Dependencies from :wlan-mqtt module ---
+    // implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:$mqtt"
+    // implementation "org.eclipse.paho:org.eclipse.paho.android.service:$mqttService"
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+    implementation "com.github.hannesa2:paho.mqtt.android:$mqttService"
+
+     implementation('org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5') {
+        exclude group: 'org.java-websocket'
+    }
+//    implementation('org.eclipse.paho:org.eclipse.paho.android.service:1.1.1') {
+//        exclude group: 'com.squareup.okhttp3'
+//    }
+
+    // --- Common dependencies from old root build.gradle ---
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+    implementation "com.jakewharton.timber:timber:$timber"
+    implementation "io.reactivex.rxjava2:rxjava:$rxJava"
+    implementation "io.reactivex.rxjava2:rxkotlin:$rxKotlin"
+    implementation "javax.inject:javax.inject:$javaxInject"
+
+    // --- Common test dependencies from all modules ---
+    testImplementation "com.polidea.rxandroidble2:mockclient:$rxble" // From :wpan-ble
+    testImplementation "junit:junit:$junit"
+    testImplementation 'org.robolectric:robolectric:4.4'
+    testImplementation "org.mockito:mockito-core:$mockito"
+    testImplementation "org.mockito:mockito-inline:$mockito"
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:$mockitoKotlin"
+    testImplementation "io.mockk:mockk:$mockk"
+    testImplementation 'androidx.test:core:1.5.0'
+}

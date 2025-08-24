@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="br.pucrio.inf.lac">
+
+    <!-- Required for MQTT and other network communications -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Required for BLE scanning and connections -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
+    <!-- Required for BLE scanning on Android 6.0+ -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <!-- Declares that the app uses BLE, but it's not required to run -->
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
+
+    <application>
+        <!-- Service required by the Paho MQTT Client library -->
+        <service android:name="org.eclipse.paho.android.service.MqttService" />
+    </application>
+</manifest>
