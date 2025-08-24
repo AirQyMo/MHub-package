@@ -1,5 +1,7 @@
 package br.pucrio.inf.lac
 
+import android.content.Context
+import br.pucrio.inf.lac.mobilehub.core.MobileHubService
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -8,22 +10,34 @@ import io.flutter.plugin.common.MethodChannel.Result
 
 /** Plugin */
 class Plugin: FlutterPlugin, MethodCallHandler {
-  /// The MethodChannel that will the communication between Flutter and native Android
-  ///
-  /// This local reference serves to register the plugin with the Flutter Engine and unregister it
-  /// when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
+  private lateinit var context: Context
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "plugin")
     channel.setMethodCallHandler(this)
+    context = flutterPluginBinding.applicationContext
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
-    if (call.method == "getPlatformVersion") {
-      result.success("Android ${android.os.Build.VERSION.RELEASE}")
-    } else {
-      result.notImplemented()
+    when (call.method) {
+        "getPlatformVersion" -> {
+            result.success("Android ${android.os.Build.VERSION.RELEASE}")
+        }
+        "startMobileHub" -> {
+            MobileHubService.startService(context)
+            result.success("MobileHubService started")
+        }
+        "stopMobileHub" -> {
+            MobileHubService.stopService(context)
+            result.success("MobileHubService stopped")
+        }
+        "isMobileHubStarted" -> {
+            result.success(MobileHubService.isStarted)
+        }
+        else -> {
+            result.notImplemented()
+        }
     }
   }
 
