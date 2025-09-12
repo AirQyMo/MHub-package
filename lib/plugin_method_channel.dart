@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -9,9 +11,21 @@ class MethodChannelPlugin extends PluginPlatform {
   @visibleForTesting
   final methodChannel = const MethodChannel('plugin');
 
+  static const EventChannel _onScanningStateChangedChannel = EventChannel(
+    'onScanningStateChanged',
+  );
+  static const EventChannel _onMessageReceivedChannel = EventChannel(
+    'onMessageReceived',
+  );
+
+  Stream<bool>? _onScanningStateChanged;
+  Stream<Map<dynamic, dynamic>>? _onMessageReceived;
+
   @override
   Future<String?> getPlatformVersion() async {
-    final version = await methodChannel.invokeMethod<String>('getPlatformVersion');
+    final version = await methodChannel.invokeMethod<String>(
+      'getPlatformVersion',
+    );
     return version;
   }
 
@@ -32,7 +46,41 @@ class MethodChannelPlugin extends PluginPlatform {
 
   @override
   Future<bool?> isMobileHubStarted() async {
-    final isStarted = await methodChannel.invokeMethod<bool>('isMobileHubStarted');
+    final isStarted = await methodChannel.invokeMethod<bool>(
+      'isMobileHubStarted',
+    );
     return isStarted;
+  }
+
+  @override
+  Future<void> startListening() async {
+    await methodChannel.invokeMethod<void>('startListening');
+  }
+
+  @override
+  Future<void> stopListening() async {
+    await methodChannel.invokeMethod<void>('stopListening');
+  }
+
+  @override
+  Future<bool?> isScanning() async {
+    final isScanning = await methodChannel.invokeMethod<bool>('isScanning');
+    return isScanning;
+  }
+
+  @override
+  Stream<bool> get onScanningStateChanged {
+    _onScanningStateChanged ??= _onScanningStateChangedChannel
+        .receiveBroadcastStream()
+        .map((event) => event as bool);
+    return _onScanningStateChanged!;
+  }
+
+  @override
+  Stream<Map<dynamic, dynamic>> get onMessageReceived {
+    _onMessageReceived ??= _onMessageReceivedChannel
+        .receiveBroadcastStream()
+        .map((event) => event as Map<dynamic, dynamic>);
+    return _onMessageReceived!;
   }
 }

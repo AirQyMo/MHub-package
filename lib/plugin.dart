@@ -20,4 +20,24 @@ class Plugin {
   Future<bool?> isMobileHubStarted() {
     return PluginPlatform.instance.isMobileHubStarted();
   }
+
+  Future<void> startListening() {
+    return PluginPlatform.instance.startListening();
+  }
+
+  Future<void> stopListening() {
+    return PluginPlatform.instance.stopListening();
+  }
+
+  Future<bool?> isScanning() {
+    return PluginPlatform.instance.isScanning();
+  }
+
+  Stream<bool> get onScanningStateChanged {
+    return PluginPlatform.instance.onScanningStateChanged;
+  }
+
+  Stream<Map<dynamic, dynamic>> get onMessageReceived {
+    return PluginPlatform.instance.onMessageReceived;
+  }
 }

@@ -23,5 +23,4 @@ plugins {
 }
 
 include(":app")
-
 include(":plugin")

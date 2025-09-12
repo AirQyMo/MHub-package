@@ -6,11 +6,17 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <!-- Required for BLE scanning and connections -->
+    <!-- These are the legacy permissions for older Android versions -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
     <!-- Required for BLE scanning on Android 6.0+ -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <!-- Required for BLE scanning on Android 12.0+ -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
 
     <!-- Declares that the app uses BLE, but it's not required to run -->
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
