@@ -38,6 +38,18 @@ class Plugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         }
     }
 
+    private val onScanningStateChangedHandler = object : EventChannel.StreamHandler {
+        override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+            onScanningStateChangedSink = events
+            bleMessageReceiver?.onScanningStateChangedSink = onScanningStateChangedSink
+        }
+
+        override fun onCancel(arguments: Any?) {
+            onScanningStateChangedSink = null
+            bleMessageReceiver?.onScanningStateChangedSink = null
+        }
+    }
+
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "plugin")
         channel.setMethodCallHandler(this)
@@ -46,6 +58,9 @@ class Plugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
         onMessageReceivedChannel = EventChannel(flutterPluginBinding.binaryMessenger, "onMessageReceived")
         onMessageReceivedChannel.setStreamHandler(onMessageReceivedHandler)
+
+        onScanningStateChangedChannel = EventChannel(flutterPluginBinding.binaryMessenger, "onScanningStateChanged")
+        onScanningStateChangedChannel.setStreamHandler(onScanningStateChangedHandler)
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {

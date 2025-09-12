@@ -20,6 +20,7 @@ class BleMessageReceiver(
     private val TAG = "BleMessageReceiver"
     private var activity: Activity? = null
     var onMessageReceivedSink: EventChannel.EventSink? = null
+    var onScanningStateChangedSink: EventChannel.EventSink? = null
 
     private lateinit var rxBleClient: RxBleClient
     private var scanSubscription: Disposable? = null
@@ -90,15 +91,23 @@ class BleMessageReceiver(
         scanSubscription = rxBleClient.scanBleDevices(scanSettings)
             .subscribe(
                 { scanResult ->
-                    Log.d(TAG, "Device found: ${scanResult.bleDevice.macAddress}, Name: ${scanResult.bleDevice.name}")
-                    onMessageReceivedSink?.success(scanResult.bleDevice.name)
+                    val deviceData = mapOf(
+                        "name" to scanResult.bleDevice.name,
+                        "macAddress" to scanResult.bleDevice.macAddress,
+                        "rssi" to scanResult.rssi
+                    )
+                    Log.d(TAG, "Device found: $deviceData")
+                    onMessageReceivedSink?.success(deviceData)
                 },
                 { throwable ->
                     Log.e(TAG, "BLE scan failed: $throwable")
+                    isScanning = false
+                    onScanningStateChangedSink?.success(false)
                     onMessageReceivedSink?.error("SCAN_ERROR", "BLE scan failed", throwable.message)
                 }
             )
         isScanning = true
+        onScanningStateChangedSink?.success(true)
         pendingResult?.success(null)
         pendingResult = null
     }
@@ -107,6 +116,7 @@ class BleMessageReceiver(
         Log.d(TAG, "stopListening called")
         scanSubscription?.dispose()
         isScanning = false
+        onScanningStateChangedSink?.success(false)
         Log.d(TAG, "BLE scanning stopped")
     }
 }

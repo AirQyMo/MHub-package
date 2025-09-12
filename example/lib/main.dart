@@ -73,15 +73,32 @@ class _BleHomePageState extends State<BleHomePage> with WidgetsBindingObserver {
       print('Scanning state changed: $isScanning');
     });
 
-    _messageSubscription = _plugin.onMessageReceived.listen((message) {
+    _messageSubscription = _plugin.onMessageReceived.listen((deviceData) {
+      // Cast the received data to a Map
+      final deviceMap = deviceData as Map<dynamic, dynamic>;
+
+      // Extract device information
+      final name = deviceMap['name'] ?? 'N/A';
+      final macAddress = deviceMap['macAddress'];
+      final rssi = deviceMap['rssi'];
+
+      final text = 'Name: $name\nAddress: $macAddress, RSSI: $rssi';
+
       setState(() {
-        final text = "From ${message['sender']}: ${message['message']}";
-        // Avoid adding duplicate messages
-        if (!_receivedMessages.contains(text)) {
+        // Check if the device is already in the list by its MAC address
+        final existingIndex = _receivedMessages.indexWhere(
+          (msg) => msg.contains(macAddress),
+        );
+
+        if (existingIndex != -1) {
+          // If the device is already in the list, update its information
+          _receivedMessages[existingIndex] = text;
+        } else {
+          // Otherwise, add it as a new device
           _receivedMessages.add(text);
         }
       });
-      print('Message received: $message');
+      print('Device found: $text');
     });
   }
 
