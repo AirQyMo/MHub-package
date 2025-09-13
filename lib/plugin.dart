@@ -21,8 +21,8 @@ class Plugin {
     return PluginPlatform.instance.isMobileHubStarted();
   }
 
-  Future<void> startListening() {
-    return PluginPlatform.instance.startListening();
+  Future<void> startListening({String? uuid}) {
+    return PluginPlatform.instance.startListening(uuid: uuid);
   }
 
   Future<void> stopListening() {

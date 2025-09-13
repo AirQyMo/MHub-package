@@ -83,7 +83,8 @@ class Plugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                 if (activity == null) {
                     result.error("NO_ACTIVITY", "The plugin is not attached to an activity.", null)
                 } else {
-                    bleMessageReceiver?.startListening(result)
+                    val uuid = call.argument<String>("uuid")
+                    bleMessageReceiver?.startListening(result, uuid)
                 }
             }
             "stopListening" -> {

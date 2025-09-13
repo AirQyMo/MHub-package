@@ -53,8 +53,11 @@ class MethodChannelPlugin extends PluginPlatform {
   }
 
   @override
-  Future<void> startListening() async {
-    await methodChannel.invokeMethod<void>('startListening');
+  Future<void> startListening({String? uuid}) async {
+    await methodChannel.invokeMethod<void>(
+      'startListening',
+      {'uuid': uuid},
+    );
   }
 
   @override

@@ -5,13 +5,16 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.ParcelUuid
 import android.util.Log
 import com.polidea.rxandroidble2.RxBleClient
+import com.polidea.rxandroidble2.scan.ScanFilter
 import com.polidea.rxandroidble2.scan.ScanSettings
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
 import io.reactivex.disposables.Disposable
+import java.util.UUID
 
 class BleMessageReceiver(
     private val context: Context
@@ -27,6 +30,7 @@ class BleMessageReceiver(
     private var isScanning: Boolean = false
 
     private var pendingResult: MethodChannel.Result? = null
+    private var pendingUuid: String? = null
     private val PERMISSION_REQUEST_CODE = 3636
 
     init {
@@ -72,8 +76,9 @@ class BleMessageReceiver(
         return false
     }
 
-    fun startListening(result: MethodChannel.Result) {
+    fun startListening(result: MethodChannel.Result, uuid: String?) {
         this.pendingResult = result
+        this.pendingUuid = uuid
         if (hasPermissions()) {
             startScan()
         } else {
@@ -82,13 +87,33 @@ class BleMessageReceiver(
     }
 
     private fun startScan() {
-        Log.d(TAG, "startScan called")
+        val uuid = this.pendingUuid
+        Log.d(TAG, "startScan called with UUID: $uuid")
 
         val scanSettings = ScanSettings.Builder()
             .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
             .build()
 
-        scanSubscription = rxBleClient.scanBleDevices(scanSettings)
+        val scanFilter = uuid?.let {
+            try {
+                ScanFilter.Builder()
+                    .setServiceUuid(ParcelUuid(UUID.fromString(it)))
+                    .build()
+            } catch (e: IllegalArgumentException) {
+                Log.e(TAG, "Invalid UUID format: $it")
+                pendingResult?.error("INVALID_UUID", "Invalid UUID format: $it", null)
+                pendingResult = null
+                return
+            }
+        }
+
+        val scanObservable = if (scanFilter != null) {
+            rxBleClient.scanBleDevices(scanSettings, scanFilter)
+        } else {
+            rxBleClient.scanBleDevices(scanSettings)
+        }
+
+        scanSubscription = scanObservable
             .subscribe(
                 { scanResult ->
                     val deviceData = mapOf(

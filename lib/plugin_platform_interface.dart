@@ -43,7 +43,7 @@ abstract class PluginPlatform extends PlatformInterface {
     throw UnimplementedError('isMobileHubStarted() has not been implemented.');
   }
 
-  Future<void> startListening() {
+  Future<void> startListening({String? uuid}) {
     throw UnimplementedError('startListening() has not been implemented.');
   }
 
