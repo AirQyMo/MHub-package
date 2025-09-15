@@ -21,6 +21,67 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class MobileHubScreen extends StatefulWidget {
+  const MobileHubScreen({super.key});
+
+  @override
+  State<MobileHubScreen> createState() => _MobileHubScreenState();
+}
+
+class _MobileHubScreenState extends State<MobileHubScreen> {
+  final _plugin = Plugin();
+
+  Future<void> _startMobileHub() async {
+    try {
+      await _plugin.startMobileHub();
+      _showSnackBar('Mobile hub started.');
+    } catch (e) {
+      _showSnackBar('Failed to start mobile hub: $e');
+    }
+  }
+
+  Future<void> _stopMobileHub() async {
+    try {
+      await _plugin.stopMobileHub();
+      _showSnackBar('Mobile hub stopped.');
+    } catch (e) {
+      _showSnackBar('Failed to stop mobile hub: $e');
+    }
+  }
+
+  void _showSnackBar(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Mobile Hub')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            ElevatedButton(
+              onPressed: _startMobileHub,
+              child: const Text('Start Mobile Hub'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _stopMobileHub,
+              child: const Text('Stop Mobile Hub'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
 class BleHomePage extends StatefulWidget {
   const BleHomePage({super.key});
 
@@ -139,7 +200,20 @@ class _BleHomePageState extends State<BleHomePage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('BLE Message Receiver')),
+      appBar: AppBar(
+        title: const Text('BLE Message Receiver'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.hub),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const MobileHubScreen()),
+              );
+            },
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

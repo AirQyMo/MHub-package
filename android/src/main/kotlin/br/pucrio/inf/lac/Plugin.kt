@@ -3,7 +3,12 @@ package br.pucrio.inf.lac
 import android.app.Activity
 import android.content.Context
 import br.pucrio.inf.lac.ble.BleMessageReceiver
-import br.pucrio.inf.lac.mobilehub.core.MobileHubService
+import br.pucrio.inf.lac.mobilehub.core.MobileHub
+import br.pucrio.inf.lac.asper.AsperCEP
+import br.pucrio.inf.lac.mqtt.MqttWLAN
+import br.pucrio.inf.lac.ble.BleWPAN
+import br.pucrio.inf.lac.mobilehub.core.domain.technologies.cep.CEP
+import br.pucrio.inf.lac.mobilehub.core.domain.technologies.wpan.WPAN
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -69,15 +74,32 @@ class Plugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                 result.success("Android ${android.os.Build.VERSION.RELEASE}")
             }
             "startMobileHub" -> {
-                MobileHubService.startService(context)
+                val wlan = MqttWLAN.Builder(context)
+                    .ipAddress("192.168.1.100")
+                    .port(1883)
+                    .build()
+
+                val bleWpan: WPAN = BleWPAN.Builder(context).build()
+
+                val asperCep: CEP = AsperCEP.Builder().build()
+
+                MobileHub.init(context)
+                    .setWlanTechnology(wlan)
+                    .addWpanTechnology(bleWpan)
+                    .setCepTechnology(asperCep)
+                    .setAutoConnect(true)
+                    .setLog(true)
+                    .build()
+
+                MobileHub.start()
                 result.success("MobileHubService started")
             }
             "stopMobileHub" -> {
-                MobileHubService.stopService(context)
+                MobileHub.stop()
                 result.success("MobileHubService stopped")
             }
             "isMobileHubStarted" -> {
-                result.success(MobileHubService.isStarted)
+                result.success(MobileHub.isStarted)
             }
             "startListening" -> {
                 if (activity == null) {
