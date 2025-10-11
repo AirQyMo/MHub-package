@@ -35,8 +35,14 @@ class MethodChannelPlugin extends PluginPlatform {
   }
 
   @override
-  Future<void> startMobileHub() async {
-    await methodChannel.invokeMethod<void>('startMobileHub');
+  Future<void> startMobileHub({
+    required String ipAddress,
+    required int port,
+  }) async {
+    await methodChannel.invokeMethod<void>('startMobileHub', {
+      'ipAddress': ipAddress,
+      'port': port,
+    });
   }
 
   @override

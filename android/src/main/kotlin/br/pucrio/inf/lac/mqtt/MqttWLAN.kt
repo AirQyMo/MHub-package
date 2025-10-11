@@ -126,6 +126,7 @@ class MqttWLAN(
 
     private fun publishMessage(topic: Topic, message: MqttMessage) {
         try {
+            Timber.d("Publishing message. Topic: $topic ### Message: $message")
             client.publish(topic, message)
         } catch (exception: MqttException) {
             Timber.e(exception)
@@ -151,6 +152,7 @@ class MqttWLAN(
     }
 
     private fun onNewMessage(mqttTopic: String, mqttMessage: MqttMessage) {
+        Timber.d("New message arrived. Topic: $mqttTopic ### Message: $mqttMessage")
         val topic = mqttTopic.asTopic
         val payload = String(mqttMessage.payload)
         val message = Message(topic, payload)

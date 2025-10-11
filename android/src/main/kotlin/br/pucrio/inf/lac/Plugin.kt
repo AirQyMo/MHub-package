@@ -7,6 +7,7 @@ import br.pucrio.inf.lac.mobilehub.core.MobileHub
 import br.pucrio.inf.lac.asper.AsperCEP
 import br.pucrio.inf.lac.mqtt.MqttWLAN
 import br.pucrio.inf.lac.ble.BleWPAN
+import br.pucrio.inf.lac.mrudp.MrudpWLAN
 import br.pucrio.inf.lac.mobilehub.core.domain.technologies.cep.CEP
 import br.pucrio.inf.lac.mobilehub.core.domain.technologies.wpan.WPAN
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -74,9 +75,17 @@ class Plugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                 result.success("Android ${android.os.Build.VERSION.RELEASE}")
             }
             "startMobileHub" -> {
-                val wlan = MqttWLAN.Builder(context)
-                    .ipAddress("192.168.1.100")
-                    .port(1883)
+                val ipAddress = call.argument<String>("ipAddress")
+                val port = call.argument<Int>("port")
+
+                if (ipAddress == null || port == null) {
+                    result.error("INVALID_ARGUMENTS", "ipAddress and port must be provided", null)
+                    return
+                }
+
+                val wlan = MrudpWLAN.Builder()
+                    .ipAddress(ipAddress)
+                    .port(port)
                     .build()
 
                 val bleWpan: WPAN = BleWPAN.Builder(context).build()
@@ -85,7 +94,7 @@ class Plugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
                 MobileHub.init(context)
                     .setWlanTechnology(wlan)
-                    .addWpanTechnology(bleWpan)
+                    // .addWpanTechnology(bleWpan)
                     .setCepTechnology(asperCep)
                     .setAutoConnect(true)
                     .setLog(true)

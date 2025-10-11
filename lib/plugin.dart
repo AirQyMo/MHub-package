@@ -9,8 +9,14 @@ class Plugin {
     return PluginPlatform.instance.initMobileHub();
   }
 
-  Future<void> startMobileHub() {
-    return PluginPlatform.instance.startMobileHub();
+  Future<void> startMobileHub({
+    required String ipAddress,
+    required int port,
+  }) {
+    return PluginPlatform.instance.startMobileHub(
+      ipAddress: ipAddress,
+      port: port,
+    );
   }
 
   Future<void> stopMobileHub() {

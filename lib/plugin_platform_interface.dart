@@ -31,7 +31,10 @@ abstract class PluginPlatform extends PlatformInterface {
     throw UnimplementedError('initMobileHub() has not been implemented.');
   }
 
-  Future<void> startMobileHub() {
+  Future<void> startMobileHub({
+    required String ipAddress,
+    required int port,
+  }) {
     throw UnimplementedError('startMobileHub() has not been implemented.');
   }
 

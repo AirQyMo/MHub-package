@@ -73,6 +73,9 @@ dependencies {
     // --- Dependencies from :core module ---
     implementation "androidx.core:core-ktx:$ktx"
     implementation "com.google.code.gson:gson:$gson"
+    implementation "com.fasterxml.jackson.core:jackson-databind:2.13.3"
+    implementation "com.fasterxml.jackson.core:jackson-core:2.13.3"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:2.13.3"
     implementation "com.google.dagger:dagger:$dagger"
     compileOnly "com.squareup.inject:assisted-inject-annotations-dagger2:$assisted"
     kapt "com.google.dagger:dagger-compiler:$dagger"

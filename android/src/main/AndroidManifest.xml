@@ -24,5 +24,11 @@
     <application>
         <!-- Service required by the Paho MQTT Client library -->
         <service android:name="org.eclipse.paho.android.service.MqttService" />
+
+        <service
+            android:name=".mobilehub.core.MobileHubService"
+            android:foregroundServiceType="location" />
+
+        <receiver android:name=".mobilehub.core.MobileHubServiceStopReceiver" />
     </application>
 </manifest>
