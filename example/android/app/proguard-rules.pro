@@ -1,0 +1,3 @@
+-dontwarn com.squareup.inject.assisted.Assisted
+-dontwarn com.squareup.inject.assisted.AssistedInject
+-dontwarn javax.script.ScriptEngineFactory

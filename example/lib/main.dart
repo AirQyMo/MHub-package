@@ -30,10 +30,27 @@ class MobileHubScreen extends StatefulWidget {
 
 class _MobileHubScreenState extends State<MobileHubScreen> {
   final _plugin = Plugin();
+  final _ipAddressController = TextEditingController(text: '192.168.0.154');
+  final _portController = TextEditingController(text: '6200');
+
+  @override
+  void dispose() {
+    _ipAddressController.dispose();
+    _portController.dispose();
+    super.dispose();
+  }
 
   Future<void> _startMobileHub() async {
     try {
-      await _plugin.startMobileHub();
+      final ipAddress = _ipAddressController.text;
+      final port = int.tryParse(_portController.text);
+
+      if (port == null) {
+        _showSnackBar('Invalid port number.');
+        return;
+      }
+
+      await _plugin.startMobileHub(ipAddress: ipAddress, port: port);
       _showSnackBar('Mobile hub started.');
     } catch (e) {
       _showSnackBar('Failed to start mobile hub: $e');
@@ -62,19 +79,39 @@ class _MobileHubScreenState extends State<MobileHubScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Mobile Hub')),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            ElevatedButton(
-              onPressed: _startMobileHub,
-              child: const Text('Start Mobile Hub'),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _stopMobileHub,
-              child: const Text('Stop Mobile Hub'),
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              TextField(
+                controller: _ipAddressController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'IP Address',
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: _portController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Port',
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _startMobileHub,
+                child: const Text('Start Mobile Hub'),
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: _stopMobileHub,
+                child: const Text('Stop Mobile Hub'),
+              ),
+            ],
+          ),
         ),
       ),
     );
