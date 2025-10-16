@@ -12,6 +12,8 @@ import java.net.InetSocketAddress
 import java.nio.charset.StandardCharsets
 import java.util.*
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ObjectNode
 
 internal class MrudpAndroidClient private constructor(hostname: String, port: Int) {
     companion object {
@@ -31,10 +33,8 @@ internal class MrudpAndroidClient private constructor(hostname: String, port: In
     fun connect(listener: MrudpCallback) {
         worker = Thread {
             try {
-                Timber.d("Client ID: $clientId")
+                Timber.d("Client ID = $clientId")
                 connection.addNodeConnectionListener(listener)
-                // final SendLocationTask sendlocationtask = new SendLocationTask(this);
-                // this.scheduledFutureLocationTask = this.threadPool.scheduleWithFixedDelay(sendlocationtask, 5000, 60000, TimeUnit.MILLISECONDS);
                 connection.connect(socket)
             } catch (ex: IOException) {
                 Timber.e(ex)
@@ -56,8 +56,48 @@ internal class MrudpAndroidClient private constructor(hostname: String, port: In
 
             val data = SwapData()
             data.message = messageContent
-            data.topic = "PrivateMessageTopic"
-            data.recipient = "01111111-1111-1111-1111-111111111111"
+
+            data.topic = "AppModel"
+            // data.topic = "PrivateMessageTopic"
+            // data.recipient = "01111111-1111-1111-1111-111111111111"
+
+
+            val message = ApplicationMessage().apply {
+                contentObject = data
+                senderID = clientId
+            }
+
+            connection.sendMessage(message)
+        } catch (ex: IOException) {
+            Timber.e(ex)
+        }
+    }
+
+    fun updateContext(payload: List<String>) {
+        val topic = Topic.parse("GroupReportTopic")
+
+        try {
+            val jsonPayload = mapOf(
+                KEY_TOPIC to topic.value,
+                KEY_PAYLOAD to payload,
+                KEY_TIMESTAMP to System.currentTimeMillis()
+            ).let { JSONObject(it) }
+
+            val messageContent = jsonPayload.toString().toByteArray(StandardCharsets.UTF_8)
+
+            val data = SwapData()
+            data.message = messageContent
+
+            val objMapper = ObjectMapper()
+            val contextObj = objMapper.createObjectNode()
+
+            val beaconsListString = listOf("Beacon 1", "Beacon 2").joinToString(prefix="[", postfix="]")
+            
+            contextObj.put("beacons", beaconsListString)
+
+            data.setContext(contextObj)
+            data.setDuration(60)
+            data.topic = "GroupReportTopic"
 
             val message = ApplicationMessage().apply {
                 contentObject = data

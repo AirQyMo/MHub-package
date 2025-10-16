@@ -17,8 +17,9 @@ import br.pucrio.inf.lac.mobilehub.core.gateways.connection.ConnectionGateway
 import br.pucrio.inf.lac.mobilehub.core.gateways.mepa.MEPAGateway
 import br.pucrio.inf.lac.mobilehub.core.gateways.s2pa.S2PAGateway
 import br.pucrio.inf.lac.mobilehub.core.helpers.components.RxBus
-import br.pucrio.inf.lac.R
 import javax.inject.Inject
+import br.pucrio.inf.lac.R
+
 
 internal class MobileHubService : Service() {
     companion object {

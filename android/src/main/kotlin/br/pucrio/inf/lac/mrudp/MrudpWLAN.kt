@@ -81,6 +81,10 @@ class MrudpWLAN private constructor(
         listener?.onNewMessage(message)
     }
 
+    override fun updateContext(payload: List<String>): Completable = Completable.fromAction {
+        client.updateContext(payload)
+    }
+
     override fun disconnect() = client.disconnect()
 
     private fun onDisconnected() {

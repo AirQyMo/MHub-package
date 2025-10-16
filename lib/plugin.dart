@@ -9,14 +9,15 @@ class Plugin {
     return PluginPlatform.instance.initMobileHub();
   }
 
-  Future<void> startMobileHub({
-    required String ipAddress,
-    required int port,
-  }) {
+  Future<void> startMobileHub({required String ipAddress, required int port}) {
     return PluginPlatform.instance.startMobileHub(
       ipAddress: ipAddress,
       port: port,
     );
+  }
+
+  Future<void> updateContext({required List<Map<dynamic, dynamic>> devices}) {
+    return PluginPlatform.instance.updateContext(devices: devices);
   }
 
   Future<void> stopMobileHub() {
@@ -27,8 +28,8 @@ class Plugin {
     return PluginPlatform.instance.isMobileHubStarted();
   }
 
-  Future<void> startListening({String? uuid}) {
-    return PluginPlatform.instance.startListening(uuid: uuid);
+  Future<void> startListening({List<String>? uuids}) {
+    return PluginPlatform.instance.startListening(uuids: uuids);
   }
 
   Future<void> stopListening() {
@@ -43,7 +44,7 @@ class Plugin {
     return PluginPlatform.instance.onScanningStateChanged;
   }
 
-  Stream<Map<dynamic, dynamic>> get onMessageReceived {
-    return PluginPlatform.instance.onMessageReceived;
+  Stream<Map<dynamic, dynamic>> get onBleDataReceived {
+    return PluginPlatform.instance.onBleDataReceived;
   }
 }

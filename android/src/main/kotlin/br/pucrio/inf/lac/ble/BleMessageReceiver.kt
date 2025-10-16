@@ -22,7 +22,7 @@ class BleMessageReceiver(
 
     private val TAG = "BleMessageReceiver"
     private var activity: Activity? = null
-    var onMessageReceivedSink: EventChannel.EventSink? = null
+    var onBleDataReceivedSink: EventChannel.EventSink? = null
     var onScanningStateChangedSink: EventChannel.EventSink? = null
 
     private lateinit var rxBleClient: RxBleClient
@@ -30,7 +30,7 @@ class BleMessageReceiver(
     private var isScanning: Boolean = false
 
     private var pendingResult: MethodChannel.Result? = null
-    private var pendingUuid: String? = null
+    private var pendingUuids: List<String>? = null
     private val PERMISSION_REQUEST_CODE = 3636
 
     init {
@@ -76,9 +76,9 @@ class BleMessageReceiver(
         return false
     }
 
-    fun startListening(result: MethodChannel.Result, uuid: String?) {
+    fun startListening(result: MethodChannel.Result, uuids: List<String>?) {
         this.pendingResult = result
-        this.pendingUuid = uuid
+        this.pendingUuids = uuids
         if (hasPermissions()) {
             startScan()
         } else {
@@ -87,48 +87,53 @@ class BleMessageReceiver(
     }
 
     private fun startScan() {
-        val uuid = this.pendingUuid
-        Log.d(TAG, "startScan called with UUID: $uuid")
+        val uuids = this.pendingUuids?.mapNotNull {
+            try {
+                UUID.fromString(it)
+            } catch (e: IllegalArgumentException) {
+                Log.e(TAG, "Invalid UUID format: $it")
+                null
+            }
+        }
+        Log.d(TAG, "startScan called with UUIDs: $uuids")
 
         val scanSettings = ScanSettings.Builder()
             .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
             .build()
 
-        val scanFilter = uuid?.let {
-            try {
-                ScanFilter.Builder()
-                    .setServiceUuid(ParcelUuid(UUID.fromString(it)))
-                    .build()
-            } catch (e: IllegalArgumentException) {
-                Log.e(TAG, "Invalid UUID format: $it")
-                pendingResult?.error("INVALID_UUID", "Invalid UUID format: $it", null)
-                pendingResult = null
-                return
-            }
-        }
-
-        val scanObservable = if (scanFilter != null) {
-            rxBleClient.scanBleDevices(scanSettings, scanFilter)
-        } else {
-            rxBleClient.scanBleDevices(scanSettings)
-        }
+        val scanObservable = rxBleClient.scanBleDevices(scanSettings)
 
         scanSubscription = scanObservable
+            .filter { scanResult ->
+                if (uuids.isNullOrEmpty()) {
+                    true // No filter, so all devices pass
+                } else {
+                    val serviceUuids = scanResult.scanRecord?.serviceUuids?.map { it.uuid } ?: emptyList()
+                    serviceUuids.any { it in uuids }
+                }
+            }
             .subscribe(
                 { scanResult ->
+                    val serviceUuids = scanResult.scanRecord?.serviceUuids?.map { it.uuid } ?: emptyList()
+                    val matchedUuid = if (!uuids.isNullOrEmpty()) {
+                        serviceUuids.firstOrNull { it in uuids }
+                    } else {
+                        serviceUuids.firstOrNull()
+                    }
+
                     val deviceData = mapOf(
                         "name" to scanResult.bleDevice.name,
-                        "macAddress" to scanResult.bleDevice.macAddress,
+                        "uuid" to matchedUuid?.toString(),
                         "rssi" to scanResult.rssi
                     )
                     Log.d(TAG, "Device found: $deviceData")
-                    onMessageReceivedSink?.success(deviceData)
+                    onBleDataReceivedSink?.success(deviceData)
                 },
                 { throwable ->
                     Log.e(TAG, "BLE scan failed: $throwable")
                     isScanning = false
                     onScanningStateChangedSink?.success(false)
-                    onMessageReceivedSink?.error("SCAN_ERROR", "BLE scan failed", throwable.message)
+                    onBleDataReceivedSink?.error("SCAN_ERROR", "BLE scan failed", throwable.message)
                 }
             )
         isScanning = true

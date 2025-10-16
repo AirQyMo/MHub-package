@@ -46,7 +46,7 @@ abstract class PluginPlatform extends PlatformInterface {
     throw UnimplementedError('isMobileHubStarted() has not been implemented.');
   }
 
-  Future<void> startListening({String? uuid}) {
+  Future<void> startListening({List<String>? uuids}) {
     throw UnimplementedError('startListening() has not been implemented.');
   }
 
@@ -66,5 +66,13 @@ abstract class PluginPlatform extends PlatformInterface {
 
   Stream<Map<dynamic, dynamic>> get onMessageReceived {
     throw UnimplementedError('onMessageReceived has not been implemented.');
+  }
+
+  Stream<Map<dynamic, dynamic>> get onBleDataReceived {
+    throw UnimplementedError('onBleDataReceived has not been implemented.');
+  }
+
+  Future<void> updateContext({required List<Map> devices}) {
+    throw UnimplementedError('updateContext() has not been implemented.');
   }
 }

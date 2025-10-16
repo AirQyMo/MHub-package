@@ -24,6 +24,7 @@ class Plugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     private lateinit var channel : MethodChannel
     private lateinit var onScanningStateChangedChannel: EventChannel
     private lateinit var onMessageReceivedChannel: EventChannel
+    private lateinit var onBleDataReceivedChannel: EventChannel
     private lateinit var context: Context
     private var activity: Activity? = null
     private var activityBinding: ActivityPluginBinding? = null
@@ -31,16 +32,29 @@ class Plugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
     private var onScanningStateChangedSink: EventChannel.EventSink? = null
     private var onMessageReceivedSink: EventChannel.EventSink? = null
+    private var onBleDataReceivedSink: EventChannel.EventSink? = null
 
     private val onMessageReceivedHandler = object : EventChannel.StreamHandler {
         override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
             onMessageReceivedSink = events
-            bleMessageReceiver?.onMessageReceivedSink = onMessageReceivedSink
+            // bleMessageReceiver?.onMessageReceivedSink = onMessageReceivedSink
         }
 
         override fun onCancel(arguments: Any?) {
             onMessageReceivedSink = null
-            bleMessageReceiver?.onMessageReceivedSink = null
+            // bleMessageReceiver?.onMessageReceivedSink = null
+        }
+    }
+
+    private val onBleDataReceivedHandler = object : EventChannel.StreamHandler {
+        override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+            onBleDataReceivedSink = events
+            bleMessageReceiver?.onBleDataReceivedSink = onBleDataReceivedSink
+        }
+
+        override fun onCancel(arguments: Any?) {
+            onBleDataReceivedSink = null
+            bleMessageReceiver?.onBleDataReceivedSink = null
         }
     }
 
@@ -64,6 +78,9 @@ class Plugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
         onMessageReceivedChannel = EventChannel(flutterPluginBinding.binaryMessenger, "onMessageReceived")
         onMessageReceivedChannel.setStreamHandler(onMessageReceivedHandler)
+
+        onBleDataReceivedChannel = EventChannel(flutterPluginBinding.binaryMessenger, "onBleDataReceived")
+        onBleDataReceivedChannel.setStreamHandler(onBleDataReceivedHandler)
 
         onScanningStateChangedChannel = EventChannel(flutterPluginBinding.binaryMessenger, "onScanningStateChanged")
         onScanningStateChangedChannel.setStreamHandler(onScanningStateChangedHandler)
@@ -103,6 +120,11 @@ class Plugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                 MobileHub.start()
                 result.success("MobileHubService started")
             }
+            "updateContext" -> {
+                val payload = call.argument<List<String>>("devices") ?: emptyList()
+                MobileHub.updateContext(payload)
+                result.success("Context updated")
+            }
             "stopMobileHub" -> {
                 MobileHub.stop()
                 result.success("MobileHubService stopped")
@@ -114,8 +136,8 @@ class Plugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                 if (activity == null) {
                     result.error("NO_ACTIVITY", "The plugin is not attached to an activity.", null)
                 } else {
-                    val uuid = call.argument<String>("uuid")
-                    bleMessageReceiver?.startListening(result, uuid)
+                    val uuids = call.argument<List<String>>("uuids")
+                    bleMessageReceiver?.startListening(result, uuids)
                 }
             }
             "stopListening" -> {
@@ -131,6 +153,7 @@ class Plugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         channel.setMethodCallHandler(null)
         onScanningStateChangedChannel.setStreamHandler(null)
         onMessageReceivedChannel.setStreamHandler(null)
+        onBleDataReceivedChannel.setStreamHandler(null)
         bleMessageReceiver = null
     }
 

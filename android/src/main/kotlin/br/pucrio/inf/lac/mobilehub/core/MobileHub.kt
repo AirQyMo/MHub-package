@@ -85,6 +85,9 @@ object MobileHub {
     fun sendMessage(topic: Topic, message: String) = wlanTechnology.publishMessage(topic, message)
         .subscribe({ Timber.i("Completed") }, Timber::e)
 
+    fun updateContext(payload: List<String>) = wlanTechnology.updateContext(payload)
+        .subscribe({ Timber.i("Completed") }, Timber::e)
+
     class Builder(val context: Context) {
         var bufferStrategy: BufferStrategy = TrafficStatsStrategy(); private set
 

@@ -1,6 +1,5 @@
 package br.pucrio.inf.lac.ble.transcoder.lua
 
-
 import br.pucrio.inf.lac.ble.device.BleDevice
 import br.pucrio.inf.lac.ble.device.BleSensor
 import br.pucrio.inf.lac.ble.extensions.asDoubleList

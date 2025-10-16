@@ -3,7 +3,6 @@ package br.pucrio.inf.lac.mqtt
 import br.pucrio.inf.lac.mobilehub.core.domain.technologies.wlan.QoS
 import br.pucrio.inf.lac.mobilehub.core.domain.technologies.wlan.Topic
 import info.mqtt.android.service.MqttAndroidClient
-//import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 

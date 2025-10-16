@@ -17,9 +17,13 @@ class MethodChannelPlugin extends PluginPlatform {
   static const EventChannel _onMessageReceivedChannel = EventChannel(
     'onMessageReceived',
   );
+  static const EventChannel _onBleDataReceivedChannel = EventChannel(
+    'onBleDataReceived',
+  );
 
   Stream<bool>? _onScanningStateChanged;
   Stream<Map<dynamic, dynamic>>? _onMessageReceived;
+  Stream<Map<dynamic, dynamic>>? _onBleDataReceived;
 
   @override
   Future<String?> getPlatformVersion() async {
@@ -46,6 +50,13 @@ class MethodChannelPlugin extends PluginPlatform {
   }
 
   @override
+  Future<void> updateContext({required List<Map> devices}) async {
+    await methodChannel.invokeMethod<void>('updateContext', {
+      'devices': devices,
+    });
+  }
+
+  @override
   Future<void> stopMobileHub() async {
     await methodChannel.invokeMethod<void>('stopMobileHub');
   }
@@ -59,10 +70,10 @@ class MethodChannelPlugin extends PluginPlatform {
   }
 
   @override
-  Future<void> startListening({String? uuid}) async {
+  Future<void> startListening({List<String>? uuids}) async {
     await methodChannel.invokeMethod<void>(
       'startListening',
-      {'uuid': uuid},
+      {'uuids': uuids},
     );
   }
 
@@ -91,5 +102,13 @@ class MethodChannelPlugin extends PluginPlatform {
         .receiveBroadcastStream()
         .map((event) => event as Map<dynamic, dynamic>);
     return _onMessageReceived!;
+  }
+
+  @override
+  Stream<Map<dynamic, dynamic>> get onBleDataReceived {
+    _onBleDataReceived ??= _onBleDataReceivedChannel
+        .receiveBroadcastStream()
+        .map((event) => event as Map<dynamic, dynamic>);
+    return _onBleDataReceived!;
   }
 }

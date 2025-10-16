@@ -4,8 +4,6 @@ import android.content.Context
 import br.pucrio.inf.lac.mobilehub.core.domain.technologies.wlan.QoS
 import br.pucrio.inf.lac.mobilehub.core.domain.technologies.wlan.Topic
 import br.pucrio.inf.lac.mobilehub.core.helpers.extensions.json.toByteArray
-//import org.eclipse.paho.android.service.MqttAndroidClient
-//import org.eclipse.paho.android.service.*
 import info.mqtt.android.service.Ack
 import info.mqtt.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*

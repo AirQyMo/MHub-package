@@ -19,4 +19,6 @@ interface WLAN {
     fun publishQueuedMessages()
 
     fun disconnect()
+
+    fun updateContext(payload: List<String>): Completable
 }
