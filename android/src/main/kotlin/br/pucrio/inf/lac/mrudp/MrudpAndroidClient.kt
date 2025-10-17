@@ -91,8 +91,9 @@ internal class MrudpAndroidClient private constructor(hostname: String, port: In
             val objMapper = ObjectMapper()
             val contextObj = objMapper.createObjectNode()
 
-            val beaconsListString = listOf("Beacon 1", "Beacon 2").joinToString(prefix="[", postfix="]")
-            
+            // val beaconsListString = listOf("Beacon 1", "Beacon 2").joinToString(prefix="[", postfix="]")
+            val beaconsListString = payload.joinToString(prefix="[", postfix="]")
+            Timber.i("Beacons found in context $beaconsListString")
             contextObj.put("beacons", beaconsListString)
 
             data.setContext(contextObj)

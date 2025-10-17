@@ -64,7 +64,7 @@ abstract class PluginPlatform extends PlatformInterface {
     );
   }
 
-  Stream<Map<dynamic, dynamic>> get onMessageReceived {
+  Stream<String> get onMessageReceived {
     throw UnimplementedError('onMessageReceived has not been implemented.');
   }
 
@@ -72,7 +72,7 @@ abstract class PluginPlatform extends PlatformInterface {
     throw UnimplementedError('onBleDataReceived has not been implemented.');
   }
 
-  Future<void> updateContext({required List<Map> devices}) {
+  Future<void> updateContext({required List<String> devices}) {
     throw UnimplementedError('updateContext() has not been implemented.');
   }
 }

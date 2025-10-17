@@ -22,7 +22,7 @@ class MethodChannelPlugin extends PluginPlatform {
   );
 
   Stream<bool>? _onScanningStateChanged;
-  Stream<Map<dynamic, dynamic>>? _onMessageReceived;
+  Stream<String>? _onMessageReceived;
   Stream<Map<dynamic, dynamic>>? _onBleDataReceived;
 
   @override
@@ -50,7 +50,7 @@ class MethodChannelPlugin extends PluginPlatform {
   }
 
   @override
-  Future<void> updateContext({required List<Map> devices}) async {
+  Future<void> updateContext({required List<String> devices}) async {
     await methodChannel.invokeMethod<void>('updateContext', {
       'devices': devices,
     });
@@ -97,10 +97,10 @@ class MethodChannelPlugin extends PluginPlatform {
   }
 
   @override
-  Stream<Map<dynamic, dynamic>> get onMessageReceived {
+  Stream<String> get onMessageReceived {
     _onMessageReceived ??= _onMessageReceivedChannel
         .receiveBroadcastStream()
-        .map((event) => event as Map<dynamic, dynamic>);
+        .map((event) => event as String);
     return _onMessageReceived!;
   }
 

@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.Context
 import br.pucrio.inf.lac.ble.BleMessageReceiver
 import br.pucrio.inf.lac.mobilehub.core.MobileHub
+import br.pucrio.inf.lac.mobilehub.core.MobileHubEvent
+import io.reactivex.disposables.Disposable
 import br.pucrio.inf.lac.asper.AsperCEP
 import br.pucrio.inf.lac.mqtt.MqttWLAN
 import br.pucrio.inf.lac.ble.BleWPAN
@@ -29,27 +31,28 @@ class Plugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     private var activity: Activity? = null
     private var activityBinding: ActivityPluginBinding? = null
     private var bleMessageReceiver: BleMessageReceiver? = null
+    private var notificationHelper: NotificationHelper? = null
 
+    private var mrudpWlan: MrudpWLAN? = null
     private var onScanningStateChangedSink: EventChannel.EventSink? = null
     private var onMessageReceivedSink: EventChannel.EventSink? = null
     private var onBleDataReceivedSink: EventChannel.EventSink? = null
+    private var messageSubscription: Disposable? = null
+
 
     private val onMessageReceivedHandler = object : EventChannel.StreamHandler {
         override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
-            onMessageReceivedSink = events
-            // bleMessageReceiver?.onMessageReceivedSink = onMessageReceivedSink
+            mrudpWlan?.onMrudpDataReceivedSink = events
         }
 
         override fun onCancel(arguments: Any?) {
-            onMessageReceivedSink = null
-            // bleMessageReceiver?.onMessageReceivedSink = null
+            mrudpWlan?.onMrudpDataReceivedSink = null
         }
     }
 
     private val onBleDataReceivedHandler = object : EventChannel.StreamHandler {
         override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
-            onBleDataReceivedSink = events
-            bleMessageReceiver?.onBleDataReceivedSink = onBleDataReceivedSink
+            bleMessageReceiver?.onBleDataReceivedSink = events
         }
 
         override fun onCancel(arguments: Any?) {
@@ -75,6 +78,7 @@ class Plugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         channel.setMethodCallHandler(this)
         context = flutterPluginBinding.applicationContext
         bleMessageReceiver = BleMessageReceiver(context)
+        notificationHelper = NotificationHelper(context)
 
         onMessageReceivedChannel = EventChannel(flutterPluginBinding.binaryMessenger, "onMessageReceived")
         onMessageReceivedChannel.setStreamHandler(onMessageReceivedHandler)
@@ -104,6 +108,7 @@ class Plugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                     .ipAddress(ipAddress)
                     .port(port)
                     .build()
+                this.mrudpWlan = wlan as MrudpWLAN
 
                 val bleWpan: WPAN = BleWPAN.Builder(context).build()
 
@@ -155,6 +160,7 @@ class Plugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         onMessageReceivedChannel.setStreamHandler(null)
         onBleDataReceivedChannel.setStreamHandler(null)
         bleMessageReceiver = null
+        notificationHelper = null
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {

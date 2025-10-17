@@ -16,7 +16,7 @@ class Plugin {
     );
   }
 
-  Future<void> updateContext({required List<Map<dynamic, dynamic>> devices}) {
+  Future<void> updateContext({required List<String> devices}) {
     return PluginPlatform.instance.updateContext(devices: devices);
   }
 
@@ -46,5 +46,9 @@ class Plugin {
 
   Stream<Map<dynamic, dynamic>> get onBleDataReceived {
     return PluginPlatform.instance.onBleDataReceived;
+  }
+
+  Stream<String> get onMessageReceived {
+    return PluginPlatform.instance.onMessageReceived;
   }
 }

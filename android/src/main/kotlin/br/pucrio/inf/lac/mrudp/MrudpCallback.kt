@@ -32,26 +32,39 @@ internal class MrudpCallback(
     override fun internalException(connection: NodeConnection, error: Exception) = Timber.e(error)
 
     override fun newMessageReceived(connection: NodeConnection, message: Message) {
+        Timber.i("Callback New message received ${message.senderID}, ${message.contentObject}")
         try {
             when (val content = message.contentObject) {
                 is SwapData -> {
+                    Timber.i("SwapData Message received")
                     val payloadString = String(content.message, StandardCharsets.UTF_8)
                     try {
                         // First, assume it's a JSON payload from the Flutter side
                         val json = JSONObject(payloadString)
-                        val topic = Topic.parse(json.getString(KEY_TOPIC))
+                        Timber.i("Swap Data JSON Message received: \u001b[34m$json\u001b[0m")
+                        val topic = Topic.parse("default")
                         val payload = json.getString(KEY_PAYLOAD)
+
+                        Timber.i("Message received: \u001b[34m$payload\u001b[0m")
                         messageArrived(topic, payload)
                     } catch (e: JSONException) {
+                        Timber.i("SwapData Message NOT JSON")
                         // If it's not a JSON, assume it's the other format
                         // where the topic is in the SwapData object itself.
-                        val topic = Topic.parse(content.topic)
-                        messageArrived(topic, payloadString)
+                        try {
+                            val topic = Topic.parse(content.topic)
+                            messageArrived(topic, payloadString)
+                        }
+                        catch (e: Exception)
+                        {
+                            Timber.e("Error in SwapData message: ${e.localizedMessage}")
+                        }
                     }
                 }
                 is String -> {
                     // This branch handles the case where the contentObject itself is the JSON string
                     val (topic, payload) = parseJsonPayload(content)
+                    Timber.i("String Message received: \u001b[34m$payload\u001b[0m")
                     messageArrived(topic, payload)
                 }
                 else -> {

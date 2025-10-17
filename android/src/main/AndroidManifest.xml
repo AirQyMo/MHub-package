@@ -21,6 +21,9 @@
     <!-- Declares that the app uses BLE, but it's not required to run -->
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
 
+    <!-- Required to show notifications on Android 13+ -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
     <application>
         <!-- Service required by the Paho MQTT Client library -->
         <service android:name="org.eclipse.paho.android.service.MqttService" />

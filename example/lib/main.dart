@@ -38,11 +38,24 @@ class _MobileHubScreenState extends State<MobileHubScreen> {
   final _ipAddressController = TextEditingController(text: '192.168.0.154');
   final _portController = TextEditingController(text: '6200');
   bool _isMobileHubRunning = false;
+  List<String> _receivedMessages = [];
+  StreamSubscription? _messageSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _messageSubscription = _plugin.onMessageReceived.listen((message) {
+      setState(() {
+        _receivedMessages.add(message);
+      });
+    });
+  }
 
   @override
   void dispose() {
     _ipAddressController.dispose();
     _portController.dispose();
+    _messageSubscription?.cancel();
     super.dispose();
   }
 
@@ -99,40 +112,69 @@ class _MobileHubScreenState extends State<MobileHubScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Mobile Hub')),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              TextField(
-                controller: _ipAddressController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'IP Address',
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            const Text(
+              'Mobile Hub Settings',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _ipAddressController,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'IP Address',
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _portController,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Port',
+              ),
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: _isMobileHubRunning ? null : _startMobileHub,
+                  child: const Text('Start Mobile Hub'),
                 ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: _portController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Port',
+                ElevatedButton(
+                  onPressed: _isMobileHubRunning ? _stopMobileHub : null,
+                  child: const Text('Stop Mobile Hub'),
                 ),
-                keyboardType: TextInputType.number,
+              ],
+            ),
+            const SizedBox(height: 20),
+            const Divider(),
+            const SizedBox(height: 10),
+            const Text(
+              'Received Messages',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _receivedMessages.length,
+                itemBuilder: (context, index) {
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(_receivedMessages[index]),
+                    ),
+                  );
+                },
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _startMobileHub,
-                child: const Text('Start Mobile Hub'),
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: _stopMobileHub,
-                child: const Text('Stop Mobile Hub'),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -243,27 +285,25 @@ class _BleHomePageState extends State<BleHomePage> with WidgetsBindingObserver {
     return Future.value();
   }
 
-  Future<void> _sendContextUpdate() async {
+    Future<void> _sendContextUpdate() async {
     try {
-      // Convert the list of device messages to a list of maps
-      final devicesList = _receivedMessages.map((message) {
-        // Parse the message to extract device info
-        // Format: "Name: xxx\nUUID: yyy, RSSI: zzz"
+      // Parse messages to extract device info and RSSI
+      final devices = _receivedMessages.map((message) {
         final lines = message.split('\n');
-        final name = lines[0].replaceFirst('Name: ', '');
         final uuidAndRssi = lines[1].split(', RSSI: ');
         final uuid = uuidAndRssi[0].replaceFirst('UUID: ', '');
         final rssi = int.tryParse(uuidAndRssi[1]) ?? 0;
-
-        return {
-          'name': name,
-          'uuid': uuid,
-          'rssi': rssi,
-        };
+        return {'uuid': uuid, 'rssi': rssi};
       }).toList();
 
-      await _plugin.updateContext(devices: devicesList);
-      print('Context updated with ${devicesList.length} devices');
+      // Sort devices by RSSI in descending order (strongest first)
+      devices.sort((a, b) => (b['rssi'] as int).compareTo(a['rssi'] as int));
+
+      // Extract just the UUIDs into a new list of strings
+      final List<String> uuids = devices.map((device) => device['uuid'] as String).toList();
+
+      await _plugin.updateContext(devices: uuids);
+      print('Context updated');
     } catch (e) {
       print('Failed to update context: $e');
     }

@@ -10,6 +10,7 @@ import br.pucrio.inf.lac.mobilehub.core.gateways.connection.base.Envelope
 import br.pucrio.inf.lac.mobilehub.core.helpers.components.circularqueue.CircularQueue
 import br.pucrio.inf.lac.mobilehub.core.helpers.components.circularqueue.LimitedSizedQueue
 import com.google.gson.Gson
+import io.flutter.plugin.common.EventChannel
 import io.reactivex.Completable
 import timber.log.Timber
 
@@ -19,6 +20,8 @@ class MrudpWLAN private constructor(
 ): WLAN {
     private var status: ConnectionStatus = ConnectionStatus.Disconnected
     private val messages: CircularQueue<Pair<Topic, String>> = LimitedSizedQueue()
+
+    var onMrudpDataReceivedSink: EventChannel.EventSink? = null
 
     private val connectionCallback = MrudpCallback(
         connected = ::onConnected,
@@ -79,6 +82,7 @@ class MrudpWLAN private constructor(
     private fun onNewMessage(topic: Topic, payload: String) {
         val message = Message(topic, payload)
         listener?.onNewMessage(message)
+        onMrudpDataReceivedSink?.success(payload)
     }
 
     override fun updateContext(payload: List<String>): Completable = Completable.fromAction {

@@ -33,7 +33,7 @@ internal class ConnectionGateway @Inject constructor(
 
     private fun onNewMessage(message: Message) {
         RxBus.publish(MobileHubEvent.NewMessage(message))
-        Timber.i("${message.topic.value}: ${message.payload}")
+        Timber.i("Connection gateway ${message.topic.value}: ${message.payload}")
 
         try {
             message.routeToController()
@@ -45,6 +45,7 @@ internal class ConnectionGateway @Inject constructor(
     private fun Message.routeToController() = when (topic) {
         Topic.Cep -> cepController.route<CepQueryBody>(payload)
         Topic.Driver -> driverController.route<MobileObjectDriverBody>(payload)
+        
         else -> Timber.w("Not handled yet")
     }
 
