@@ -20,6 +20,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import com.google.gson.Gson
 
 /** Plugin */
 class Plugin: FlutterPlugin, MethodCallHandler, ActivityAware {
@@ -38,15 +39,19 @@ class Plugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     private var onMessageReceivedSink: EventChannel.EventSink? = null
     private var onBleDataReceivedSink: EventChannel.EventSink? = null
     private var messageSubscription: Disposable? = null
+    private var eventSubscription: Disposable? = null
 
 
     private val onMessageReceivedHandler = object : EventChannel.StreamHandler {
         override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
-            mrudpWlan?.onMrudpDataReceivedSink = events
+            onMessageReceivedSink = events
+            // Subscribe to MobileHubEvent.NewMessage events
+            subscribeToMobileHubMessages()
         }
 
         override fun onCancel(arguments: Any?) {
-            mrudpWlan?.onMrudpDataReceivedSink = null
+            onMessageReceivedSink = null
+            eventSubscription?.dispose()
         }
     }
 
@@ -71,6 +76,17 @@ class Plugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             onScanningStateChangedSink = null
             bleMessageReceiver?.onScanningStateChangedSink = null
         }
+    }
+
+    private fun subscribeToMobileHubMessages() {
+        eventSubscription?.dispose()
+        eventSubscription = MobileHub.on(MobileHubEvent.NewMessage::class.java)
+            .subscribe({ event ->
+                // Send the message payload to Flutter
+                onMessageReceivedSink?.success(event.message.payload)
+            }, { error ->
+                onMessageReceivedSink?.error("MOBILE_HUB_ERROR", error.localizedMessage, null)
+            })
     }
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
@@ -161,6 +177,7 @@ class Plugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         onBleDataReceivedChannel.setStreamHandler(null)
         bleMessageReceiver = null
         notificationHelper = null
+        eventSubscription?.dispose()
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
